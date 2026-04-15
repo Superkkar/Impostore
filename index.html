@@ -7,406 +7,387 @@
 <script src="parole.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;700&display=swap" rel="stylesheet">
 <style>
-  :root {
-    --bg: #0d0d0f;
-    --surface: #18181c;
-    --surface2: #222228;
-    --border: #2e2e38;
-    --accent: #ff3c5f;
-    --accent2: #ffb800;
-    --wild: #00d4aa;
-    --text: #f0f0f0;
-    --muted: #6b6b7a;
-  }
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-  body {
-    background: var(--bg);
-    color: var(--text);
-    font-family: 'DM Sans', sans-serif;
-    min-height: 100vh;
-    overflow-x: hidden;
-  }
-  body::before {
-    content: '';
-    position: fixed;
-    inset: 0;
-    background:
-      radial-gradient(ellipse 80% 60% at 20% 10%, rgba(255,60,95,0.07) 0%, transparent 60%),
-      radial-gradient(ellipse 60% 50% at 80% 80%, rgba(0,212,170,0.05) 0%, transparent 60%);
-    pointer-events: none;
-    z-index: 0;
-  }
-  .container {
-    max-width: 680px;
-    margin: 0 auto;
-    padding: 2rem 1.5rem;
-    position: relative;
-    z-index: 1;
-  }
-  header { text-align: center; margin-bottom: 2.5rem; }
-  header h1 {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: clamp(3rem, 10vw, 5.5rem);
-    letter-spacing: 0.04em;
-    line-height: 1;
-    background: linear-gradient(135deg, #fff 30%, var(--accent));
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-  }
-  header p { color: var(--muted); font-size: 0.9rem; margin-top: 0.4rem; }
-
-  .screen { display: none; }
-  .screen.active { display: block; animation: fadeIn 0.3s ease; }
-  @keyframes fadeIn { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
-
-  .card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 20px;
-    padding: 2rem;
-    margin-bottom: 1.25rem;
-  }
-  .card h2 {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 1.6rem;
-    letter-spacing: 0.06em;
-    margin-bottom: 1.25rem;
-    color: var(--accent2);
-  }
-
-  label {
-    display: block;
-    font-size: 0.8rem;
-    color: var(--muted);
-    margin-bottom: 0.4rem;
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-  }
-  input[type="number"], input[type="text"] {
-    width: 100%;
-    background: var(--surface2);
-    border: 1.5px solid var(--border);
-    border-radius: 12px;
-    padding: 0.85rem 1.1rem;
-    color: var(--text);
-    font-family: 'DM Sans', sans-serif;
-    font-size: 1rem;
-    outline: none;
-    transition: border-color 0.2s;
-  }
-  input:focus { border-color: var(--accent); }
-  .form-group { margin-bottom: 1.2rem; }
-
-  .toggle-row {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    background: var(--surface2);
-    border: 1.5px solid var(--border);
-    border-radius: 12px;
-    padding: 1rem 1.2rem;
-    cursor: pointer;
-    transition: border-color 0.2s;
-    user-select: none;
-  }
-  .toggle-row:hover { border-color: var(--wild); }
-  .toggle-label { display: flex; align-items: center; gap: 0.75rem; font-weight: 500; }
-  .toggle-sub { font-size: 0.78rem; color: var(--muted); margin-top: 0.15rem; }
-  .switch {
-    width: 48px; height: 26px;
-    background: var(--border);
-    border-radius: 999px;
-    position: relative;
-    transition: background 0.25s;
-    flex-shrink: 0;
-  }
-  .switch::after {
-    content: '';
-    position: absolute;
-    top: 3px; left: 3px;
-    width: 20px; height: 20px;
-    background: #fff;
-    border-radius: 50%;
-    transition: transform 0.25s;
-  }
-  .switch.on { background: var(--wild); }
-  .switch.on::after { transform: translateX(22px); }
-
-  .btn {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.5rem;
-    padding: 0.9rem 1.8rem;
-    border-radius: 14px;
-    border: none;
-    font-family: 'DM Sans', sans-serif;
-    font-size: 1rem;
-    font-weight: 700;
-    cursor: pointer;
-    transition: transform 0.15s, filter 0.15s, box-shadow 0.15s;
-    width: 100%;
-    margin-top: 0.5rem;
-  }
-  .btn:active { transform: scale(0.97); }
-  .btn-primary {
-    background: var(--accent);
-    color: #fff;
-    box-shadow: 0 4px 24px rgba(255,60,95,0.35);
-  }
-  .btn-primary:hover { filter: brightness(1.1); }
-  .btn-secondary {
-    background: var(--surface2);
-    color: var(--text);
-    border: 1.5px solid var(--border);
-  }
-  .btn-secondary:hover { border-color: var(--accent); }
-
-  .player-item {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    background: var(--surface2);
-    border: 1.5px solid var(--border);
-    border-radius: 12px;
-    padding: 0.7rem 1rem;
-    margin-bottom: 0.55rem;
-  }
-  .player-num {
-    width: 30px; height: 30px;
-    background: var(--accent);
-    border-radius: 8px;
-    display: flex; align-items: center; justify-content: center;
-    font-weight: 700;
-    font-size: 0.85rem;
-    flex-shrink: 0;
-  }
-  .player-name-input {
-    flex: 1;
-    background: transparent;
-    border: none;
-    color: var(--text);
-    font-size: 0.95rem;
-    font-family: 'DM Sans', sans-serif;
-    outline: none;
-  }
-
-  .reveal-card { text-align: center; padding: 2.5rem 2rem; }
-  .role-badge {
-    display: inline-block;
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 1.1rem;
-    letter-spacing: 0.15em;
-    padding: 0.35rem 1.2rem;
-    border-radius: 999px;
-    margin-bottom: 1.5rem;
-  }
-  .role-badge.normale   { background: rgba(0,212,170,0.12); color: var(--wild); border: 1px solid var(--wild); }
-  .role-badge.impostore { background: rgba(255,60,95,0.12); color: var(--accent); border: 1px solid var(--accent); }
-  .word-display {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: clamp(2.8rem, 10vw, 5rem);
-    letter-spacing: 0.03em;
-    line-height: 1.1;
-    margin: 0.5rem 0 1.5rem;
-  }
-  .no-word-msg {
-    color: var(--muted);
-    font-size: 1rem;
-    line-height: 1.7;
-    margin: 1.2rem 0 2rem;
-  }
-
-  .cover-overlay {
-    position: fixed; inset: 0;
-    background: var(--bg);
-    z-index: 100;
-    display: flex; flex-direction: column; align-items: center; justify-content: center;
-    gap: 0.6rem;
-    animation: fadeIn 0.2s ease;
-  }
-  .cover-icon { font-size: 3.5rem; }
-  .cover-title {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 1.5rem;
-    letter-spacing: 0.12em;
-    color: var(--muted);
-  }
-  .cover-name {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 3rem;
-    color: var(--text);
-    letter-spacing: 0.05em;
-  }
-  .cover-overlay .btn { max-width: 300px; margin-top: 1.5rem; }
-
-  .round-badge {
-    display: inline-block;
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 0.9rem;
-    letter-spacing: 0.15em;
-    color: var(--muted);
-    background: var(--surface2);
-    border-radius: 8px;
-    padding: 0.2rem 0.7rem;
-    margin-bottom: 1rem;
-  }
-
-  .vote-instructions {
-    color: var(--muted);
-    font-size: 0.88rem;
-    margin-bottom: 1.25rem;
-    line-height: 1.5;
-  }
-  .vote-list { display: flex; flex-direction: column; gap: 0.55rem; }
-  .vote-btn {
-    background: var(--surface2);
-    border: 1.5px solid var(--border);
-    border-radius: 14px;
-    padding: 1rem 1.2rem;
-    color: var(--text);
-    font-family: 'DM Sans', sans-serif;
-    font-size: 1rem;
-    font-weight: 500;
-    cursor: pointer;
-    transition: border-color 0.2s, background 0.2s, transform 0.1s;
-    display: flex;
-    align-items: center;
-    gap: 0.9rem;
-    width: 100%;
-    text-align: left;
-  }
-  .vote-btn:hover { border-color: var(--accent); background: rgba(255,60,95,0.07); }
-  .vote-btn:active { transform: scale(0.98); }
-  .vote-avatar {
-    width: 38px; height: 38px;
-    background: var(--surface);
-    border: 2px solid var(--border);
-    border-radius: 10px;
-    display: flex; align-items: center; justify-content: center;
-    font-weight: 700;
-    font-size: 1rem;
-    flex-shrink: 0;
-    transition: border-color 0.2s;
-  }
-  .vote-count {
-    margin-left: auto;
-    display: flex; align-items: center; gap: 0.4rem;
-    color: var(--muted);
-    font-size: 0.88rem;
-  }
-  .count-num {
-    background: var(--surface);
-    border-radius: 8px;
-    padding: 0.15rem 0.55rem;
-    font-weight: 700;
-    min-width: 28px;
-    text-align: center;
-    transition: background 0.2s, color 0.2s;
-  }
-  .vote-btn.has-votes .count-num { background: var(--accent); color: #fff; }
-  .vote-btn.has-votes .vote-avatar { border-color: var(--accent); }
-
-  .vote-footer {
-    display: flex;
-    gap: 0.75rem;
-    margin-top: 1.25rem;
-    align-items: center;
-    flex-wrap: wrap;
-  }
-  .vote-footer .btn { margin-top: 0; }
-  .vote-footer .btn-primary { flex: 1; min-width: 160px; }
-  .vote-reset-btn {
-    background: none;
-    border: 1.5px solid var(--border);
-    border-radius: 10px;
-    color: var(--muted);
-    font-family: 'DM Sans', sans-serif;
-    font-size: 0.85rem;
-    padding: 0.7rem 1rem;
-    cursor: pointer;
-    transition: border-color 0.2s, color 0.2s;
-    white-space: nowrap;
-  }
-  .vote-reset-btn:hover { border-color: var(--accent); color: var(--text); }
-
-  .eliminated-banner {
-    background: rgba(255,60,95,0.08);
-    border: 1.5px solid var(--accent);
-    border-radius: 14px;
-    padding: 1.1rem 1.25rem;
-    margin-bottom: 1rem;
-    text-align: center;
-  }
-  .eliminated-banner h3 {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 1.4rem;
-    color: var(--accent);
-    letter-spacing: 0.05em;
-  }
-  .eliminated-banner p { color: var(--muted); font-size: 0.88rem; margin-top: 0.35rem; }
-
-  .result-center { text-align: center; padding: 1.5rem 1rem; }
-  .result-emoji { font-size: 4rem; margin-bottom: 0.75rem; }
-  .result-title {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 3rem;
-    letter-spacing: 0.06em;
-    line-height: 1;
-    margin-bottom: 0.5rem;
-  }
-  .result-sub { color: var(--muted); font-size: 0.95rem; margin-bottom: 1.5rem; }
-
-  .reveal-list { margin-top: 1.25rem; }
-  .reveal-item {
-    display: flex; align-items: center; justify-content: space-between;
-    padding: 0.7rem 1rem;
-    border-radius: 10px;
-    background: var(--surface2);
-    margin-bottom: 0.45rem;
-    font-size: 0.95rem;
-  }
-  .pname { font-weight: 500; }
-  .pword { font-size: 0.8rem; color: var(--muted); margin-top: 0.1rem; }
-
-  .role-tag {
-    font-size: 0.78rem;
-    font-weight: 700;
-    padding: 0.2rem 0.6rem;
-    border-radius: 6px;
-    white-space: nowrap;
-  }
-  .role-tag.normale      { background: rgba(0,212,170,0.15); color: var(--wild); }
-  .role-tag.impostore    { background: rgba(255,60,95,0.15); color: var(--accent); }
-  .role-tag.mister-wild  { background: rgba(255,184,0,0.15); color: var(--accent2); }
-
-  hr.divider { border: none; border-top: 1px solid var(--border); margin: 1.25rem 0; }
-
-  .toast {
-    position: fixed;
-    bottom: 2rem; left: 50%;
-    transform: translateX(-50%) translateY(100px);
-    background: var(--surface2);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 0.7rem 1.4rem;
-    font-size: 0.9rem;
-    z-index: 999;
-    transition: transform 0.3s;
-    white-space: nowrap;
-    pointer-events: none;
-  }
-  .toast.show { transform: translateX(-50%) translateY(0); }
-
-  @media (max-width: 500px) {
-    .container { padding: 1.5rem 1rem; }
-    .card { padding: 1.5rem; }
-  }
+:root {
+  --bg: #0d0d0f;
+  --surface: #18181c;
+  --surface2: #222228;
+  --border: #2e2e38;
+  --accent: #ff3c5f;
+  --accent2: #ffb800;
+  --wild: #00d4aa;
+  --text: #f0f0f0;
+  --muted: #6b6b7a;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'DM Sans', sans-serif;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 80% 60% at 20% 10%, rgba(255,60,95,0.07) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 50% at 80% 80%, rgba(0,212,170,0.05) 0%, transparent 60%);
+  pointer-events: none;
+  z-index: 0;
+}
+.container {
+  max-width: 680px;
+  margin: 0 auto;
+  padding: 2rem 1.5rem;
+  position: relative;
+  z-index: 1;
+}
+header { text-align: center; margin-bottom: 2.5rem; }
+header h1 {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: clamp(3rem, 10vw, 5.5rem);
+  letter-spacing: 0.04em;
+  line-height: 1;
+  background: linear-gradient(135deg, #fff 30%, var(--accent));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+header p { color: var(--muted); font-size: 0.9rem; margin-top: 0.4rem; }
+.screen { display: none; }
+.screen.active { display: block; animation: fadeIn 0.3s ease; }
+@keyframes fadeIn { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 2rem;
+  margin-bottom: 1.25rem;
+}
+.card h2 {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1.6rem;
+  letter-spacing: 0.06em;
+  margin-bottom: 1.25rem;
+  color: var(--accent2);
+}
+label {
+  display: block;
+  font-size: 0.8rem;
+  color: var(--muted);
+  margin-bottom: 0.4rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+input[type="number"], input[type="text"] {
+  width: 100%;
+  background: var(--surface2);
+  border: 1.5px solid var(--border);
+  border-radius: 12px;
+  padding: 0.85rem 1.1rem;
+  color: var(--text);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 1rem;
+  outline: none;
+  transition: border-color 0.2s;
+}
+input:focus { border-color: var(--accent); }
+.form-group { margin-bottom: 1.2rem; }
+.toggle-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--surface2);
+  border: 1.5px solid var(--border);
+  border-radius: 12px;
+  padding: 1rem 1.2rem;
+  cursor: pointer;
+  transition: border-color 0.2s;
+  user-select: none;
+}
+.toggle-row:hover { border-color: var(--wild); }
+.toggle-label { display: flex; align-items: center; gap: 0.75rem; font-weight: 500; }
+.toggle-sub { font-size: 0.78rem; color: var(--muted); margin-top: 0.15rem; }
+.switch {
+  width: 48px; height: 26px;
+  background: var(--border);
+  border-radius: 999px;
+  position: relative;
+  transition: background 0.25s;
+  flex-shrink: 0;
+}
+.switch::after {
+  content: '';
+  position: absolute;
+  top: 3px; left: 3px;
+  width: 20px; height: 20px;
+  background: #fff;
+  border-radius: 50%;
+  transition: transform 0.25s;
+}
+.switch.on { background: var(--wild); }
+.switch.on::after { transform: translateX(22px); }
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.9rem 1.8rem;
+  border-radius: 14px;
+  border: none;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.15s, filter 0.15s, box-shadow 0.15s;
+  width: 100%;
+  margin-top: 0.5rem;
+}
+.btn:active { transform: scale(0.97); }
+.btn-primary {
+  background: var(--accent);
+  color: #fff;
+  box-shadow: 0 4px 24px rgba(255,60,95,0.35);
+}
+.btn-primary:hover { filter: brightness(1.1); }
+.btn-secondary {
+  background: var(--surface2);
+  color: var(--text);
+  border: 1.5px solid var(--border);
+}
+.btn-secondary:hover { border-color: var(--accent); }
+.player-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  background: var(--surface2);
+  border: 1.5px solid var(--border);
+  border-radius: 12px;
+  padding: 0.7rem 1rem;
+  margin-bottom: 0.55rem;
+}
+.player-num {
+  width: 30px; height: 30px;
+  background: var(--accent);
+  border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 700;
+  font-size: 0.85rem;
+  flex-shrink: 0;
+}
+.player-name-input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  color: var(--text);
+  font-size: 0.95rem;
+  font-family: 'DM Sans', sans-serif;
+  outline: none;
+}
+.reveal-card { text-align: center; padding: 2.5rem 2rem; }
+.role-badge {
+  display: inline-block;
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1.1rem;
+  letter-spacing: 0.15em;
+  padding: 0.35rem 1.2rem;
+  border-radius: 999px;
+  margin-bottom: 1.5rem;
+}
+.role-badge.normale { background: rgba(0,212,170,0.12); color: var(--wild); border: 1px solid var(--wild); }
+.role-badge.impostore { background: rgba(255,60,95,0.12); color: var(--accent); border: 1px solid var(--accent); }
+.word-display {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: clamp(2.8rem, 10vw, 5rem);
+  letter-spacing: 0.03em;
+  line-height: 1.1;
+  margin: 0.5rem 0 1.5rem;
+}
+.no-word-msg {
+  color: var(--muted);
+  font-size: 1rem;
+  line-height: 1.7;
+  margin: 1.2rem 0 2rem;
+}
+.cover-overlay {
+  position: fixed; inset: 0;
+  background: var(--bg);
+  z-index: 100;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 0.6rem;
+  animation: fadeIn 0.2s ease;
+}
+.cover-icon { font-size: 3.5rem; }
+.cover-title {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1.5rem;
+  letter-spacing: 0.12em;
+  color: var(--muted);
+}
+.cover-name {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 3rem;
+  color: var(--text);
+  letter-spacing: 0.05em;
+}
+.cover-overlay .btn { max-width: 300px; margin-top: 1.5rem; }
+.round-badge {
+  display: inline-block;
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 0.9rem;
+  letter-spacing: 0.15em;
+  color: var(--muted);
+  background: var(--surface2);
+  border-radius: 8px;
+  padding: 0.2rem 0.7rem;
+  margin-bottom: 1rem;
+}
+.vote-instructions {
+  color: var(--muted);
+  font-size: 0.88rem;
+  margin-bottom: 1.25rem;
+  line-height: 1.5;
+}
+.vote-list { display: flex; flex-direction: column; gap: 0.55rem; }
+.vote-btn {
+  background: var(--surface2);
+  border: 1.5px solid var(--border);
+  border-radius: 14px;
+  padding: 1rem 1.2rem;
+  color: var(--text);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: border-color 0.2s, background 0.2s, transform 0.1s;
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+  width: 100%;
+  text-align: left;
+}
+.vote-btn:hover { border-color: var(--accent); background: rgba(255,60,95,0.07); }
+.vote-btn:active { transform: scale(0.98); }
+.vote-avatar {
+  width: 38px; height: 38px;
+  background: var(--surface);
+  border: 2px solid var(--border);
+  border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 700;
+  font-size: 1rem;
+  flex-shrink: 0;
+  transition: border-color 0.2s;
+}
+.vote-count {
+  margin-left: auto;
+  display: flex; align-items: center; gap: 0.4rem;
+  color: var(--muted);
+  font-size: 0.88rem;
+}
+.count-num {
+  background: var(--surface);
+  border-radius: 8px;
+  padding: 0.15rem 0.55rem;
+  font-weight: 700;
+  min-width: 28px;
+  text-align: center;
+  transition: background 0.2s, color 0.2s;
+}
+.vote-btn.has-votes .count-num { background: var(--accent); color: #fff; }
+.vote-btn.has-votes .vote-avatar { border-color: var(--accent); }
+.vote-footer {
+  display: flex;
+  gap: 0.75rem;
+  margin-top: 1.25rem;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.vote-footer .btn { margin-top: 0; }
+.vote-footer .btn-primary { flex: 1; min-width: 160px; }
+.vote-reset-btn {
+  background: none;
+  border: 1.5px solid var(--border);
+  border-radius: 10px;
+  color: var(--muted);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.85rem;
+  padding: 0.7rem 1rem;
+  cursor: pointer;
+  transition: border-color 0.2s, color 0.2s;
+  white-space: nowrap;
+}
+.vote-reset-btn:hover { border-color: var(--accent); color: var(--text); }
+.eliminated-banner {
+  background: rgba(255,60,95,0.08);
+  border: 1.5px solid var(--accent);
+  border-radius: 14px;
+  padding: 1.1rem 1.25rem;
+  margin-bottom: 1rem;
+  text-align: center;
+}
+.eliminated-banner h3 {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1.4rem;
+  color: var(--accent);
+  letter-spacing: 0.05em;
+}
+.eliminated-banner p { color: var(--muted); font-size: 0.88rem; margin-top: 0.35rem; }
+.result-center { text-align: center; padding: 1.5rem 1rem; }
+.result-emoji { font-size: 4rem; margin-bottom: 0.75rem; }
+.result-title {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 3rem;
+  letter-spacing: 0.06em;
+  line-height: 1;
+  margin-bottom: 0.5rem;
+}
+.result-sub { color: var(--muted); font-size: 0.95rem; margin-bottom: 1.5rem; }
+.reveal-list { margin-top: 1.25rem; }
+.reveal-item {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0.7rem 1rem;
+  border-radius: 10px;
+  background: var(--surface2);
+  margin-bottom: 0.45rem;
+  font-size: 0.95rem;
+}
+.pname { font-weight: 500; }
+.pword { font-size: 0.8rem; color: var(--muted); margin-top: 0.1rem; }
+.role-tag {
+  font-size: 0.78rem;
+  font-weight: 700;
+  padding: 0.2rem 0.6rem;
+  border-radius: 6px;
+  white-space: nowrap;
+}
+.role-tag.normale { background: rgba(0,212,170,0.15); color: var(--wild); }
+.role-tag.impostore { background: rgba(255,60,95,0.15); color: var(--accent); }
+.role-tag.mister-wild { background: rgba(255,184,0,0.15); color: var(--accent2); }
+hr.divider { border: none; border-top: 1px solid var(--border); margin: 1.25rem 0; }
+.toast {
+  position: fixed;
+  bottom: 2rem; left: 50%;
+  transform: translateX(-50%) translateY(100px);
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 0.7rem 1.4rem;
+  font-size: 0.9rem;
+  z-index: 999;
+  transition: transform 0.3s;
+  white-space: nowrap;
+  pointer-events: none;
+}
+.toast.show { transform: translateX(-50%) translateY(0); }
+@media (max-width: 500px) {
+  .container { padding: 1.5rem 1rem; }
+  .card { padding: 1.5rem; }
+}
 </style>
 </head>
 <body>
-
 <div class="container">
   <header>
     <h1>IMPOSTORE</h1>
@@ -417,14 +398,11 @@
   <div id="screen-setup" class="screen active">
     <div class="card">
       <h2>⚙️ Impostazioni</h2>
-
       <div class="form-group">
         <label>Numero di giocatori</label>
         <input type="number" id="numPlayers" min="3" max="15" value="5">
       </div>
-
       <hr class="divider">
-
       <div class="form-group">
         <div class="toggle-row" onclick="toggleWild()">
           <div class="toggle-label">
@@ -437,7 +415,6 @@
           <div class="switch" id="wildSwitch"></div>
         </div>
       </div>
-
       <button class="btn btn-primary" onclick="goToNames()">Avanti →</button>
     </div>
   </div>
@@ -475,7 +452,6 @@
   <div id="screen-vote-result" class="screen">
     <div class="card" id="voteResultCard"></div>
   </div>
-
 </div>
 
 <!-- COVER PASS-THE-PHONE -->
@@ -514,10 +490,10 @@ function goToNames() {
   list.innerHTML = '';
   for (let i = 1; i <= n; i++) {
     list.innerHTML += `
-      <div class="player-item">
-        <div class="player-num">${i}</div>
-        <input class="player-name-input" type="text" placeholder="Giocatore ${i}" id="pname${i}">
-      </div>`;
+    <div class="player-item">
+      <div class="player-num">${i}</div>
+      <input class="player-name-input" type="text" placeholder="Giocatore ${i}" id="pname${i}">
+    </div>`;
   }
   showScreen('screen-names');
   setTimeout(() => document.getElementById('pname1').focus(), 100);
@@ -538,7 +514,6 @@ function startGame() {
   state.wildWord = pair.wild;
   state.round = 1;
 
-  // Assegna ruoli mescolando i nomi
   const shuffled = [...names].sort(() => Math.random() - 0.5);
   const withRoles = shuffled.map((name, i) => ({
     name,
@@ -546,7 +521,6 @@ function startGame() {
     alive: true,
   }));
 
-  // Ordine di reveal casuale (diverso dall'ordine dei ruoli)
   state.players = withRoles;
   state.revealOrder = [...withRoles].sort(() => Math.random() - 0.5);
   state.currentRevealIdx = 0;
@@ -563,8 +537,8 @@ function showReveal() {
   document.getElementById('coverOverlay').style.display = 'none';
   const p = state.revealOrder[state.currentRevealIdx];
   const card = document.getElementById('revealCard');
-
   let badgeClass, badgeText, body;
+
   if (p.role === 'impostore') {
     badgeClass = 'impostore'; badgeText = '🕵️ IMPOSTORE';
     body = `<div class="no-word-msg">Non hai nessuna parola.<br><span style="font-size:0.9rem">Cerca di capirla dagli altri e non farti scoprire!</span></div>`;
@@ -575,10 +549,10 @@ function showReveal() {
   }
 
   card.innerHTML = `
-    <p style="color:var(--muted);font-size:0.85rem;margin-bottom:0.75rem;">La tua parola, <strong style="color:var(--text)">${p.name}</strong>:</p>
-    <div class="role-badge ${badgeClass}">${badgeText}</div>
-    ${body}
-    <button class="btn btn-primary" style="margin-top:1.5rem;" onclick="nextReveal()">Ho visto, copri lo schermo 🙈</button>
+  <p style="color:var(--muted);font-size:0.85rem;margin-bottom:0.75rem;">La tua parola, <strong style="color:var(--text)">${p.name}</strong>:</p>
+  <div class="role-badge ${badgeClass}">${badgeText}</div>
+  ${body}
+  <button class="btn btn-primary" style="margin-top:1.5rem;" onclick="nextReveal()">Ho visto, copri lo schermo 🙈</button>
   `;
   showScreen('screen-reveal');
 }
@@ -594,26 +568,22 @@ function alive() { return state.players.filter(p => p.alive); }
 
 function startVote() {
   document.getElementById('roundBadge').textContent = `ROUND ${state.round}`;
-  // votes = { candidato: count }, voters = Set dei nomi che hanno già votato
   state.votes = {};
   state.voters = new Set();
   alive().forEach(p => state.votes[p.name] = 0);
 
   const alivePlayers = alive();
-  const totalVoters = alivePlayers.length;
-
   document.getElementById('voteList').innerHTML = alivePlayers.map(p => `
-    <button class="vote-btn" id="vbtn-${CSS.escape(p.name)}" onclick="castVote(this,'${p.name.replace(/'/g,"\\'")}')">
-      <div class="vote-avatar">${p.name[0].toUpperCase()}</div>
-      <span style="flex:1">${p.name}</span>
-      <div class="vote-count">
-        <span style="font-size:0.82rem">voti</span>
-        <span class="count-num" id="vc-${CSS.escape(p.name)}">0</span>
-      </div>
-    </button>
+  <button class="vote-btn" id="vbtn-${CSS.escape(p.name)}" onclick="castVote(this,'${p.name.replace(/'/g,"\\'")}')">
+    <div class="vote-avatar">${p.name[0].toUpperCase()}</div>
+    <span style="flex:1">${p.name}</span>
+    <div class="vote-count">
+      <span style="font-size:0.82rem">voti</span>
+      <span class="count-num" id="vc-${CSS.escape(p.name)}">0</span>
+    </div>
+  </button>
   `).join('');
 
-  // Mostra quanti voti sono rimasti
   updateVoteCounter();
   showScreen('screen-vote');
 }
@@ -621,7 +591,6 @@ function startVote() {
 function updateVoteCounter() {
   const total = alive().length;
   const used = state.voters.size;
-  const remaining = total - used;
   let el = document.getElementById('voteCounter');
   if (!el) {
     el = document.createElement('p');
@@ -638,15 +607,13 @@ function castVote(btn, name) {
     showToast('Tutti hanno già votato!');
     return;
   }
-  // Ogni click conta come un voto di un giocatore diverso
   state.votes[name] = (state.votes[name] || 0) + 1;
-  state.voters.add(`voter_${state.voters.size}`); // traccia quanti voti totali
+  state.voters.add(`voter_${state.voters.size}`);
   btn.querySelector('.count-num').textContent = state.votes[name];
   btn.classList.add('has-votes');
   updateVoteCounter();
-
   if (state.voters.size >= total) {
-    showToast('Tutti hanno votato! Conferma l\'eliminazione.');
+    showToast("Tutti hanno votato! Conferma l'eliminazione.");
   }
 }
 
@@ -663,12 +630,10 @@ function resetVotes() {
 function confirmVote() {
   const entries = Object.entries(state.votes);
   if (entries.every(([,v]) => v === 0)) { showToast('Nessun voto! Votate prima di confermare.'); return; }
-
   const maxV = Math.max(...entries.map(([,v]) => v));
   const top = entries.filter(([,v]) => v === maxV).map(([n]) => n);
   let name = top.length === 1 ? top[0] : top[Math.floor(Math.random() * top.length)];
   if (top.length > 1) showToast(`Pareggio! Eliminato a caso: ${name}`);
-
   const eliminated = state.players.find(p => p.name === name);
   eliminated.alive = false;
   showVoteResult(eliminated, maxV);
@@ -682,18 +647,18 @@ function showVoteResult(eliminated, votes) {
 
   if (eliminated.role === 'impostore') {
     card.innerHTML = `
-      <div class="result-center">
-        <div class="result-emoji">🎉</div>
-        <div class="result-title" style="color:var(--wild)">VITTORIA!</div>
-        <p class="result-sub">Avete trovato l'impostore!</p>
-      </div>
-      <div class="eliminated-banner" style="border-color:var(--wild);background:rgba(0,212,170,0.08);">
-        <h3 style="color:var(--wild)">L'impostore era ${eliminated.name}</h3>
-        <p>La parola era: <strong style="color:var(--text)">${state.normalWord}</strong>
-        ${state.wildEnabled ? `&nbsp;·&nbsp; Mister Wild aveva: <strong style="color:var(--accent2)">${state.wildWord}</strong>` : ''}</p>
-      </div>
-      ${buildRevealList()}
-      <button class="btn btn-primary" onclick="restartGame()" style="margin-top:1.25rem;">🔄 Nuova partita</button>
+    <div class="result-center">
+      <div class="result-emoji">🎉</div>
+      <div class="result-title" style="color:var(--wild)">VITTORIA!</div>
+      <p class="result-sub">Avete trovato l'impostore!</p>
+    </div>
+    <div class="eliminated-banner" style="border-color:var(--wild);background:rgba(0,212,170,0.08);">
+      <h3 style="color:var(--wild)">L'impostore era ${eliminated.name}</h3>
+      <p>La parola era: <strong style="color:var(--text)">${state.normalWord}</strong>
+      ${state.wildEnabled ? `&nbsp;·&nbsp; Mister Wild aveva: <strong style="color:var(--accent2)">${state.wildWord}</strong>` : ''}</p>
+    </div>
+    ${buildRevealList()}
+    <button class="btn btn-primary" onclick="restartGame()" style="margin-top:1.25rem;">🔄 Nuova partita</button>
     `;
     showScreen('screen-vote-result'); return;
   }
@@ -701,36 +666,40 @@ function showVoteResult(eliminated, votes) {
   if (!impAlive || aliveNow.length <= 2) {
     const imp = state.players.find(p => p.role === 'impostore');
     card.innerHTML = `
-      <div class="result-center">
-        <div class="result-emoji">🕵️</div>
-        <div class="result-title" style="color:var(--accent)">L'IMPOSTORE VINCE!</div>
-        <p class="result-sub">Avete eliminato le persone sbagliate...</p>
-      </div>
-      <div class="eliminated-banner">
-        <h3>L'impostore era ${imp?.name}</h3>
-        <p>La parola era: <strong style="color:var(--text)">${state.normalWord}</strong>
-        ${state.wildEnabled ? `&nbsp;·&nbsp; Mister Wild aveva: <strong style="color:var(--accent2)">${state.wildWord}</strong>` : ''}</p>
-      </div>
-      ${buildRevealList()}
-      <button class="btn btn-primary" onclick="restartGame()" style="margin-top:1.25rem;">🔄 Nuova partita</button>
+    <div class="result-center">
+      <div class="result-emoji">🕵️</div>
+      <div class="result-title" style="color:var(--accent)">L'IMPOSTORE VINCE!</div>
+      <p class="result-sub">Avete eliminato le persone sbagliate...</p>
+    </div>
+    <div class="eliminated-banner">
+      <h3>L'impostore era ${imp?.name}</h3>
+      <p>La parola era: <strong style="color:var(--text)">${state.normalWord}</strong>
+      ${state.wildEnabled ? `&nbsp;·&nbsp; Mister Wild aveva: <strong style="color:var(--accent2)">${state.wildWord}</strong>` : ''}</p>
+    </div>
+    ${buildRevealList()}
+    <button class="btn btn-primary" onclick="restartGame()" style="margin-top:1.25rem;">🔄 Nuova partita</button>
     `;
     showScreen('screen-vote-result'); return;
   }
 
+  // PATCH 2: eliminato normale → non rivelare la sua parola
   const roleTag = eliminated.role === 'mister-wild'
     ? '<span class="role-tag mister-wild">🃏 Mister Wild</span>'
     : '<span class="role-tag normale">✅ Giocatore normale</span>';
-  const elWord = eliminated.role === 'mister-wild' ? state.wildWord : state.normalWord;
+
+  const wordLine = eliminated.role === 'mister-wild'
+    ? `<p>${votes} voto${votes !== 1 ? 'i' : ''} · La sua parola era: <strong style="color:var(--accent2)">${state.wildWord}</strong></p>`
+    : `<p>${votes} voto${votes !== 1 ? 'i' : ''}</p>`;
 
   card.innerHTML = `
-    <div class="eliminated-banner">
-      <h3>${eliminated.name} è stato eliminato</h3>
-      <p>${votes} voto${votes !== 1 ? 'i' : ''}  ·  La sua parola era: <strong style="color:var(--text)">${elWord}</strong></p>
-      <div style="margin-top:0.6rem">${roleTag}</div>
-    </div>
-    <p style="color:var(--muted);text-align:center;font-size:0.9rem;margin-bottom:1.25rem;">L'impostore è ancora tra voi... 👀</p>
-    <button class="btn btn-primary" onclick="nextRound()">Prossimo round →</button>
-    <button class="btn btn-secondary" onclick="revealAll()">Rivela tutti i ruoli</button>
+  <div class="eliminated-banner">
+    <h3>${eliminated.name} è stato eliminato</h3>
+    ${wordLine}
+    <div style="margin-top:0.6rem">${roleTag}</div>
+  </div>
+  <p style="color:var(--muted);text-align:center;font-size:0.9rem;margin-bottom:1.25rem;">L'impostore è ancora tra voi... 👀</p>
+  <button class="btn btn-primary" onclick="nextRound()">Prossimo round →</button>
+  <button class="btn btn-secondary" onclick="revealAll()">Rivela tutti i ruoli</button>
   `;
   showScreen('screen-vote-result');
 }
@@ -740,14 +709,14 @@ function nextRound() { state.round++; state.voters = new Set(); startVote(); }
 function revealAll() {
   const imp = state.players.find(p => p.role === 'impostore');
   document.getElementById('voteResultCard').innerHTML = `
-    <h2 style="font-family:'Bebas Neue',sans-serif;font-size:1.6rem;letter-spacing:0.06em;margin-bottom:0.5rem;color:var(--accent2)">🔍 Rivelazione finale</h2>
-    <p style="color:var(--muted);font-size:0.88rem;margin-bottom:1.25rem;">
-      Impostore: <strong style="color:var(--accent)">${imp?.name}</strong>
-      &nbsp;·&nbsp; Parola: <strong style="color:var(--text)">${state.normalWord}</strong>
-      ${state.wildEnabled ? `&nbsp;·&nbsp; Mister Wild: <strong style="color:var(--accent2)">${state.wildWord}</strong>` : ''}
-    </p>
-    ${buildRevealList()}
-    <button class="btn btn-primary" onclick="restartGame()" style="margin-top:1.25rem;">🔄 Nuova partita</button>
+  <h2 style="font-family:'Bebas Neue',sans-serif;font-size:1.6rem;letter-spacing:0.06em;margin-bottom:0.5rem;color:var(--accent2)">🔍 Rivelazione finale</h2>
+  <p style="color:var(--muted);font-size:0.88rem;margin-bottom:1.25rem;">
+    Impostore: <strong style="color:var(--accent)">${imp?.name}</strong>
+    &nbsp;·&nbsp; Parola: <strong style="color:var(--text)">${state.normalWord}</strong>
+    ${state.wildEnabled ? `&nbsp;·&nbsp; Mister Wild: <strong style="color:var(--accent2)">${state.wildWord}</strong>` : ''}
+  </p>
+  ${buildRevealList()}
+  <button class="btn btn-primary" onclick="restartGame()" style="margin-top:1.25rem;">🔄 Nuova partita</button>
   `;
 }
 
@@ -768,10 +737,29 @@ function showScreen(id) {
   window.scrollTo(0, 0);
 }
 
+// PATCH 1: restartGame preserva i nomi
 function restartGame() {
   const we = state.wildEnabled;
+  const n = parseInt(document.getElementById('numPlayers').value);
+  // Salva i nomi prima di resettare lo stato
+  const savedNames = [];
+  for (let i = 1; i <= n; i++) {
+    const inp = document.getElementById(`pname${i}`);
+    savedNames.push(inp ? inp.value.trim() : '');
+  }
   state = { players:[], normalWord:'', wildWord:'', wildEnabled:we, round:1, currentRevealIdx:0, votes:{}, voters: new Set(), revealOrder:[] };
-  showScreen('screen-setup');
+  // Ricostruisce la schermata nomi con i valori salvati
+  const list = document.getElementById('playerNamesList');
+  list.innerHTML = '';
+  for (let i = 1; i <= n; i++) {
+    const val = savedNames[i-1] || '';
+    list.innerHTML += `
+    <div class="player-item">
+      <div class="player-num">${i}</div>
+      <input class="player-name-input" type="text" placeholder="Giocatore ${i}" id="pname${i}" value="${val}">
+    </div>`;
+  }
+  showScreen('screen-names');
 }
 
 function showToast(msg) {
