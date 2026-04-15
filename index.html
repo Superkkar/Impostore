@@ -737,28 +737,35 @@ function showScreen(id) {
   window.scrollTo(0, 0);
 }
 
-// PATCH 1: restartGame preserva i nomi
 function restartGame() {
-  const we = state.wildEnabled;
-  const n = parseInt(document.getElementById('numPlayers').value);
-  // Salva i nomi prima di resettare lo stato
-  const savedNames = [];
-  for (let i = 1; i <= n; i++) {
-    const inp = document.getElementById(`pname${i}`);
-    savedNames.push(inp ? inp.value.trim() : '');
-  }
-  state = { players:[], normalWord:'', wildWord:'', wildEnabled:we, round:1, currentRevealIdx:0, votes:{}, voters: new Set(), revealOrder:[] };
-  // Ricostruisce la schermata nomi con i valori salvati
+  // 🔴 SALVA NOMI ATTUALI
+  const currentNames = state.players.map(p => p.name);
+
+  // reset stato (MA NON i nomi)
+  state.players = [];
+  state.normalWord = '';
+  state.wildWord = '';
+  state.round = 1;
+  state.currentRevealIdx = 0;
+  state.votes = {};
+  state.voters = new Set();
+  state.revealOrder = [];
+
+  // torna alla schermata nomi
   const list = document.getElementById('playerNamesList');
   list.innerHTML = '';
-  for (let i = 1; i <= n; i++) {
-    const val = savedNames[i-1] || '';
+
+  currentNames.forEach((name, i) => {
     list.innerHTML += `
     <div class="player-item">
-      <div class="player-num">${i}</div>
-      <input class="player-name-input" type="text" placeholder="Giocatore ${i}" id="pname${i}" value="${val}">
+      <div class="player-num">${i+1}</div>
+      <input class="player-name-input" type="text" value="${name}" id="pname${i+1}">
     </div>`;
-  }
+  });
+
+  // aggiorna numero giocatori
+  document.getElementById('numPlayers').value = currentNames.length;
+
   showScreen('screen-names');
 }
 
